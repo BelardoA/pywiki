@@ -20,15 +20,17 @@ class Article:
 
     WIKIPEDIA_API_URL = "https://en.wikipedia.org/w/api.php"
     
-    def __init__(self, title):
+    def __init__(self, title, auto_fetch=True):
         self.title = title
         self.content = ''
-        self.fetch_article()
+        if auto_fetch:
+            self.fetch_article()
     
     def fetch_article(self):
         """Fetch the content of the Wikipedia article.
 
-        This function retrieves the content of the article specified by the title attribute. It updates the content attribute with the article's extract or sets it to a default message if the article is not found.
+        This function retrieves the content of the article specified by the title attribute. It updates the content
+        attribute with the article's extract or sets it to a default message if the article is not found.
 
         Args:
             None
@@ -71,6 +73,10 @@ class Article:
         response = requests.get(self.WIKIPEDIA_API_URL, params=params)
         data = response.json()
         return [result['title'] for result in data['query']['search']]
+
+    def set_wiki_url(self, wiki_url: str):
+        """Set the Wikipedia URL for the article and searching."""
+
 
 
 if __name__ == "__main__":

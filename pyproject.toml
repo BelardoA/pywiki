@@ -15,3 +15,5 @@ requests = "^2.32.3"
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.scripts]
+pywiki = 'pywiki.tui.app:main'
