@@ -19,13 +19,13 @@ class Article:
     """
 
     WIKIPEDIA_API_URL = "https://en.wikipedia.org/w/api.php"
-    
+
     def __init__(self, title, auto_fetch=True):
         self.title = title
         self.content = ''
         if auto_fetch:
             self.fetch_article()
-    
+
     def fetch_article(self):
         """Fetch the content of the Wikipedia article.
 
@@ -43,11 +43,12 @@ class Article:
             "format": "json",
             "titles": self.title,
             "prop": "extracts",
-            "explaintext": True,
-            "exintro": True,
+            "explaintext": False,
+            "exintro": False,
         }
         response = requests.get(self.WIKIPEDIA_API_URL, params=params)
         data = response.json()
+        print(data)
         page = next(iter(data['query']['pages'].values()))
         self.content = page['extract'] if 'extract' in page else 'Article not found'
 
@@ -76,7 +77,7 @@ class Article:
 
     def set_wiki_url(self, wiki_url: str):
         """Set the Wikipedia URL for the article and searching."""
-
+        self.WIKIPEDIA_API_URL = wiki_url
 
 
 if __name__ == "__main__":
