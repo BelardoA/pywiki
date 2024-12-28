@@ -1,5 +1,5 @@
 from textual.app import App
-from textual.widgets import Header, Footer, Input, Button, Static
+from textual.widgets import Header, Footer, Input, Button, Select, Static
 from textual.containers import Vertical
 
 from pywiki.models.article import Article
@@ -33,6 +33,10 @@ class WikipediaTUI(App):
         margin: 1 0;
         align: center middle;
     }
+    
+    Select, Static {
+        margin: 1;
+    }
     """
 
     def compose(self):
@@ -58,12 +62,34 @@ class WikipediaTUI(App):
                 self.query_one("#article_display").update("Please enter a valid article title.")
                 return
 
+            # Remove existing dropdown if it exists
+            try:
+                existing_dropdown = self.query_one("#search_dropdown")
+                await existing_dropdown.remove()
+            except:
+                pass
+
             # Fetch the article
             try:
-                article = Article(title)
+                article = Article(title, limit=10)
+                # Create new dropdown with options
+                dropdown = Select(
+                    options=[(title, title) for title in article.possible_titles],
+                    prompt="Other possible articles...",
+                    id="search_dropdown"
+                )
+                # Mount the dropdown after the input container
+                await self.query_one("#input_container").mount(dropdown)
                 self.query_one("#article_display").update(article.content)
             except Exception as e:
                 self.query_one("#article_display").update(f"Error: {str(e)}")
+
+    async def on_select_changed(self, event: Select.Changed) -> None:
+        """Handle select widget change events."""
+        if event.select.id == "search_dropdown":
+            title = event.select.value
+            article = Article(title)
+            self.query_one("#article_display").update(article.content)
 
 
 def main():
