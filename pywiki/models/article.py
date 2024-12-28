@@ -9,6 +9,8 @@ class Article:
     Attributes:
         title (str): The title of the Wikipedia article.
         content (str): The content of the Wikipedia article.
+        possible_titles (list): A list of possible article titles based on a search query.
+        limit (int): The maximum number of search results to return.
 
     Args:
         title (str): The title of the article to be fetched from Wikipedia.
@@ -20,11 +22,14 @@ class Article:
 
     WIKIPEDIA_API_URL = "https://en.wikipedia.org/w/api.php"
 
-    def __init__(self, title, auto_fetch=True):
+    def __init__(self, title, auto_fetch=True, limit=5):
         self.title = title
         self.content = ''
+        self.possible_titles = []
+        self.limit = limit
         if auto_fetch:
             self.fetch_article()
+            self.possible_titles = self.search_articles(self.title)
 
     def fetch_article(self):
         """Fetch the content of the Wikipedia article.
@@ -52,14 +57,13 @@ class Article:
         page = next(iter(data['query']['pages'].values()))
         self.content = page['extract'] if 'extract' in page else 'Article not found'
 
-    def search_articles(self, query, limit=5):
+    def search_articles(self, query):
         """Search for articles on Wikipedia based on a query.
 
         This function queries the Wikipedia API to find articles that match the specified search term. It returns a list of article titles, limited to the specified number of results.
 
         Args:
             query (str): The search term to look for in Wikipedia articles.
-            limit (int, optional): The maximum number of article titles to return. Defaults to 5.
 
         Returns:
             list: A list of article titles that match the search query.
@@ -69,7 +73,7 @@ class Article:
             "format": "json",
             "list": "search",
             "srsearch": query,
-            "srlimit": limit,
+            "srlimit": self.limit,
         }
         response = requests.get(self.WIKIPEDIA_API_URL, params=params)
         data = response.json()
